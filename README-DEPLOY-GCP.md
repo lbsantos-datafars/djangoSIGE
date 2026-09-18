@@ -88,3 +88,50 @@ Esses valores devem entrar por:
 - O Cloud Run é efêmero. Não guardar uploads ou arquivos em filesystem local.
 - Para media e uploads, o recomendado é um bucket no Cloud Storage.
 - O banco deve ser o Cloud SQL Postgres.
+
+## 9. Débitos técnicos identificados
+
+Os itens abaixo foram identificados durante a revisão da arquitetura para Cloud Run e precisam ser tratados antes de considerar o deploy em produção como estável.
+
+### 9.1. Media e uploads persistentes
+- O projeto usa `MEDIA_ROOT` em filesystem local em [djangosige/configs/settings.py](djangosige/configs/settings.py).
+- Em Cloud Run, o contêiner não é persistente; arquivos salvos localmente podem desaparecer e não sobreviver a novas réplicas.
+- Ação recomendada: migrar uploads para Cloud Storage e configurar `MEDIA_ROOT`/`MEDIA_URL` para acesso externo.
+
+### 9.2. Static files na nuvem
+- O sistema coleta arquivos estáticos em `STATIC_ROOT`, mas ainda não configura um backend de produção robusto.
+- Ação recomendada: usar buckets do Cloud Storage ou WhiteNoise em produção, dependendo da arquitetura final.
+
+### 9.3. Dependência do banco local em desenvolvimento
+- O arquivo [docker-compose.yml](docker-compose.yml) ainda prepara um PostgreSQL local para ambiente de dev.
+- Em produção, o app deve depender do Cloud SQL e deixar de considerar um banco embutido no contêiner.
+- Ação recomendada: separar explicitamente `dev`, `staging` e `prod`.
+
+### 9.4. Variáveis de ambiente e segurança
+- O projeto já foi ajustado para leitura via ambiente, mas ainda vale reforçar a regra de nunca versionar segredos reais.
+- Ação recomendada: manter `SECRET_KEY`, `DATABASE_URL`, tokens e chaves sempre em Secret Manager ou GitHub Actions Secrets.
+
+### 9.5. Startup e migração automatizada
+- O arranque do app foi ajustado para executar `migrate` e `collectstatic`, mas a aplicação ainda deve ser validada em cenário real com banco externo.
+- Ação recomendada: validar migrações e carregamento de conteúdo em ambiente de staging antes do deploy em produção.
+
+### 9.6. Infraestrutura de produção ainda precisa de validação real
+- O Terraform e o workflow foram preparados, mas dependem do projeto GCP real, permissões e secrets reais.
+- Ação recomendada: executar deploy em ambiente de staging e validar login, uploads, PDFs e operações críticas do ERP.
+
+### 9.7. Processo de rollback e observabilidade
+- Ainda não há revisão explícita de rollback, alertas, logs e health checks estratificados para produção.
+- Ação recomendada: adicionar endpoints/health checks, alertas e política de rollout controlado.
+
+### 9.8. Dependências do código legado
+- O projeto usa patterns legados do Django e regras de negócio densas, o que exige testes mais extensivos em staging antes de produção.
+- Ação recomendada: cobrir fluxos críticos de cadastro, vendas, financeiro e fiscal em automação de CI/CD.
+
+## 10. Prioridade recomendada
+
+1. Media e uploads em storage externo
+2. Static files em ambiente de produção
+3. Cloud SQL real e validação de migrações
+4. Health checks e observabilidade
+5. Testes de regressão em staging
+6. Deploy final em produção
