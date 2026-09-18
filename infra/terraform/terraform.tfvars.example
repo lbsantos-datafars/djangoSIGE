@@ -1,0 +1,9 @@
+project_id = "your-gcp-project-id"
+region     = "southamerica-east1"
+service_name = "djangosige"
+image = "southamerica-east1-docker.pkg.dev/your-gcp-project-id/djangosige/djangosige:latest"
+secret_key = "replace-with-a-strong-random-secret"
+# database settings
+# database_instance_name = "djangosige-db"
+# database_name = "sige"
+# database_user = "sige"

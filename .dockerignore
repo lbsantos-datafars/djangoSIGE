@@ -18,3 +18,9 @@ CLAUDE.md
 AGENTS.md
 GEMINI.md
 node_modules
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+infra/.terraform/

@@ -131,6 +131,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(APP_ROOT, 'staticfiles')
 
 STATICFILES_DIRS = [
     os.path.join(APP_ROOT, 'static'),
@@ -142,6 +143,9 @@ FIXTURE_DIRS = [
 
 MEDIA_ROOT = os.path.join(APP_ROOT, 'media/')
 MEDIA_URL = 'media/'
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 

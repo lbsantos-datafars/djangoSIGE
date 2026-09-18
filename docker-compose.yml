@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:18-alpine
     environment:
-      POSTGRES_USER: sige
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: sige
+      POSTGRES_USER: ${POSTGRES_USER:-sige}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-local-dev-only}
+      POSTGRES_DB: ${POSTGRES_DB:-sige}
     volumes:
       - ./database:/var/lib/postgresql
     networks:
       - sige_net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sige -d sige"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sige} -d ${POSTGRES_DB:-sige}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -20,10 +20,10 @@ services:
     image: djangosige
     command: gunicorn -b 0.0.0.0:8000 djangosige.wsgi:application
     environment:
-      - SECRET_KEY=0#pny4oox9s#+#5dkde25dj79b-o^sdbz4kiumg#e1qx3ky
-      - ALLOWED_HOSTS=gunicorn,nginx,localhost,127.0.0.1
-      - CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
-      - DATABASE_URL=postgres://sige:pass@postgres/sige
+      - SECRET_KEY=${SECRET_KEY:-change-me-local-dev-only}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS:-http://localhost:8000,http://127.0.0.1:8000}
+      - DATABASE_URL=${DATABASE_URL:-postgres://sige:change-me-local-dev-only@postgres/sige}
     volumes:
       - ./:/opt/djangoSIGE/
     working_dir: /opt/djangoSIGE/

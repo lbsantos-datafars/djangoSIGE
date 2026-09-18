@@ -11,7 +11,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
     UV_PROJECT_ENVIRONMENT=/opt/venv \
-    PATH=/opt/venv/bin:$PATH
+    PATH=/opt/venv/bin:$PATH \
+    PORT=8080
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         build-essential \
@@ -35,6 +36,7 @@ RUN uv sync --frozen --no-install-project
 RUN uv pip install --python /opt/venv gunicorn psycopg2-binary
 
 COPY . .
+RUN chmod +x /opt/djangoSIGE/entrypoint.sh
 
-EXPOSE 8000
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "djangosige.wsgi:application"]
+EXPOSE 8080
+ENTRYPOINT ["./entrypoint.sh"]
